@@ -1,0 +1,6 @@
+name: DuckyZones
+version: '1.0'
+main: pl.barpad.duckyzones.Main
+api-version: '1.16'
+authors: [ Barpad ]
+description: Create and manage zones on your server
