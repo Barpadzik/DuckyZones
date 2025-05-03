@@ -19,12 +19,27 @@ Whether you're building PvP arenas, adventure maps, or controlled environments �
 - ❌ Block specific items or effects inside a zone  
 - ✅ Require specific items or effects to enter  
 - 🪂 Disable Elytra inside zones (auto-removes Elytra from player)  
-- ❤️ Configure health and XP level limits  
 - 🧪 Apply potion effects automatically in a zone  
 - 🚫 Custom denial messages for rule violations  
+- 💬 Configurable denial titles, subtitles, sounds, and more  
+- 📛 Support for per-zone access restrictions using permissions  
 - 🔃 Easy reload support without restarting the server  
 - 🗂️ Simple `config.yml` layout  
 - ☕ Built with **Java 16**, supports **Minecraft 1.16.5 → 1.21+**
+
+---
+
+## 🛡️ Permissions
+
+| Permission Node                           | Description                                                       |
+|------------------------------------------|-------------------------------------------------------------------|
+| `duckyzones.zone.<zone>`                | Grants access to a specific zone               |
+| `duckyzones.zone.<zone>.bypass`         | Bypass all restrictions (effects, items, etc.) in zone           |
+| `duckyzones.zones.bypass`               | Global bypass for all zones                                      |
+| `duckyzones.reload`                     | Allows reloading the plugin using `/duckyzones reload`          |
+| `duckyzones.update`                     | Allows receiving update notifications about new plugin versions  |
+
+> These permissions allow finer control over who can enter specific zones, ignore restrictions, or have special access.
 
 ---
 
@@ -45,17 +60,16 @@ zones:
     blocked-items: # Player with these items in inventory cannot enter the zone
       - TNT
       - ENDER_PEARL
-    blocked-effects: # Player with these effects cannot enter the zone
-      - SPEED
-      - INVISIBILITY
+    blocked-effects: # Player with these effects cannot enter the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED;1 = Speed 1 in the game, if you want to block all powers of effect, you must do ;-1
+      - SPEED;-1
+      - INVISIBILITY;1
     required-items: # Only Player with these items in inventory can enter the zone
       - DIAMOND
       - TOTEM_OF_UNDYING
-    required-effects:  # Only Player with these effects can enter the zone
-      - NIGHT_VISION
-    zone-effects: # Effects that will be applied after entering the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED;1 = Speed 2 in the game
-      - SPEED;1
-      - NIGHT_VISION;0
+    required-effects: # Only Players with these effects can enter the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED;1 = Speed 1 in the game, if you want to block all powers of effect, you must do ;-1
+      - NIGHT_VISION;1
+    zone-effects: # Effects that will be applied after entering the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED; 1 = Speed 1 in the game
+      - STRENGTH;2
     min-health: 5.0 # Players who do not have this number of hearts cannot enter
     max-health: 20.0 # Players who have this number of hearts or more cannot enter
     min-level: 5 # Players who do not have this amount of exp level cannot enter
