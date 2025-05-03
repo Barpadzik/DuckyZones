@@ -1,5 +1,5 @@
 name: DuckyZones
-version: '1.0'
+version: '1.1'
 main: pl.barpad.duckyzones.Main
 api-version: '1.16'
 authors: [ Barpad ]
