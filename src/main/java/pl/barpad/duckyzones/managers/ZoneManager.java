@@ -66,16 +66,28 @@ public class ZoneManager {
                     if (material != null) requiredItems.add(material);
                 }
 
-                List<PotionEffectType> blockedEffects = new ArrayList<>();
-                for (String effect : config.getStringList(path + ".blocked-effects")) {
-                    PotionEffectType type = PotionEffectType.getByName(effect.toUpperCase());
-                    if (type != null) blockedEffects.add(type);
+                Map<PotionEffectType, Integer> blockedEffects = new HashMap<>();
+                for (String effectString : config.getStringList(path + ".blocked-effects")) {
+                    String[] parts = effectString.split(";");
+                    if (parts.length == 2) {
+                        PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
+                        int amplifier = Integer.parseInt(parts[1]);
+                        if (type != null) {
+                            blockedEffects.put(type, amplifier);
+                        }
+                    }
                 }
 
-                List<PotionEffectType> requiredEffects = new ArrayList<>();
-                for (String effect : config.getStringList(path + ".required-effects")) {
-                    PotionEffectType type = PotionEffectType.getByName(effect.toUpperCase());
-                    if (type != null) requiredEffects.add(type);
+                Map<PotionEffectType, Integer> requiredEffects = new HashMap<>();
+                for (String effectString : config.getStringList(path + ".required-effects")) {
+                    String[] parts = effectString.split(";");
+                    if (parts.length == 2) {
+                        PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
+                        int amplifier = Integer.parseInt(parts[1]);
+                        if (type != null) {
+                            requiredEffects.put(type, amplifier);
+                        }
+                    }
                 }
 
                 Map<PotionEffectType, Integer> zoneEffects = new HashMap<>();
@@ -83,10 +95,12 @@ public class ZoneManager {
                     String[] parts = effectString.split(";");
                     if (parts.length == 2) {
                         PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
-                        int amplifier = Integer.parseInt(parts[1]);
-                        if (type != null) {
-                            zoneEffects.put(type, amplifier);
-                        }
+                        try {
+                            int amplifier = Integer.parseInt(parts[1]);
+                            if (type != null) {
+                                zoneEffects.put(type, Math.max(0, amplifier - 1));
+                            }
+                        } catch (NumberFormatException ignored) {}
                     }
                 }
 

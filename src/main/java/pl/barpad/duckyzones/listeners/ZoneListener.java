@@ -2,6 +2,7 @@ package pl.barpad.duckyzones.listeners;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -53,29 +54,19 @@ public class ZoneListener implements Listener {
 
         Player player = event.getPlayer();
         if (!zoneWorldCache.isWorldWithZones(player.getWorld())) return;
-        Zone currentZone = null;
 
-        for (Zone zone : cachedZones) {
-            if (zone.isInside(event.getTo())) {
-                currentZone = zone;
-                break;
-            }
-        }
+        Zone currentZone = cachedZones.stream().filter(zone -> zone.isInside(event.getTo())).findFirst().orElse(null);
 
         Zone previousZone = playerZones.get(player);
 
         if (!Objects.equals(previousZone, currentZone)) {
-            if (previousZone != null) {
-                for (PotionEffectType effect : previousZone.getZoneEffects().keySet()) {
-                    player.removePotionEffect(effect);
-                }
-            }
-
             if (currentZone != null) {
                 for (Map.Entry<PotionEffectType, Integer> entry : currentZone.getZoneEffects().entrySet()) {
                     PotionEffectType type = entry.getKey();
                     int amplifier = entry.getValue();
-                    player.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
+                    if (!currentZone.getBlockedEffects().containsKey(type)) {
+                        player.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
+                    }
                 }
             }
 
@@ -83,6 +74,10 @@ public class ZoneListener implements Listener {
                 playerZones.put(player, currentZone);
             } else {
                 playerZones.remove(player);
+
+                for (PotionEffectType type : previousZone.getZoneEffects().keySet()) {
+                    player.removePotionEffect(type);
+                }
             }
         }
 
@@ -98,13 +93,23 @@ public class ZoneListener implements Listener {
             if (hasBypass) return;
 
             boolean blockedItem = currentZone.getBlockedItems().stream().anyMatch(item -> player.getInventory().contains(item));
-            boolean hasBlockedEffect = player.getActivePotionEffects().stream()
-                    .map(PotionEffect::getType)
-                    .anyMatch(currentZone.getBlockedEffects()::contains);
+            boolean hasBlockedEffect = player.getActivePotionEffects().stream().anyMatch(effect -> {
+                PotionEffectType type = effect.getType();
+                int amplifier = effect.getAmplifier();
+
+                Integer blockedAmplifier = currentZone.getBlockedEffects().get(type);
+                return blockedAmplifier != null && (blockedAmplifier == -1 || blockedAmplifier == amplifier);
+            });
             boolean missingRequiredItem = !currentZone.getRequiredItems().isEmpty() &&
                     !currentZone.getRequiredItems().stream().allMatch(item -> player.getInventory().contains(item));
             boolean missingRequiredEffect = !currentZone.getRequiredEffects().isEmpty() &&
-                    !currentZone.getRequiredEffects().stream().allMatch(player::hasPotionEffect);
+                    !currentZone.getRequiredEffects().entrySet().stream().allMatch(entry -> {
+                        PotionEffectType type = entry.getKey();
+                        int requiredAmplifier = entry.getValue();
+
+                        return player.getActivePotionEffects().stream().anyMatch(effect ->
+                                effect.getType().equals(type) && effect.getAmplifier() >= requiredAmplifier);
+                    });
             boolean lowHealth = player.getHealth() < currentZone.getMinHealth();
             boolean highHealth = player.getHealth() > currentZone.getMaxHealth();
             boolean lowLevel = player.getLevel() < currentZone.getMinLevel();
@@ -132,6 +137,11 @@ public class ZoneListener implements Listener {
 
                 int borderDistance = currentZone.distanceFromBorder(event.getTo());
                 if (borderDistance >= 4) {
+                    for (PotionEffectType type : currentZone.getZoneEffects().keySet()) {
+                        player.removePotionEffect(type);
+                    }
+                    playerZones.remove(player);
+
                     String command = getTeleportBackCommand(currentZone.getName());
                     if (command != null) {
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", player.getName()));
@@ -151,10 +161,9 @@ public class ZoneListener implements Listener {
                 }
 
                 if (player.getInventory().getChestplate() != null &&
-                        player.getInventory().getChestplate().getType() == org.bukkit.Material.ELYTRA) {
+                        player.getInventory().getChestplate().getType() == Material.ELYTRA) {
 
                     ItemStack elytra = player.getInventory().getChestplate().clone();
-
                     player.getInventory().setChestplate(null);
 
                     HashMap<Integer, ItemStack> leftover = player.getInventory().addItem(elytra);

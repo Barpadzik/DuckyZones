@@ -10,17 +10,16 @@ zones:
     blocked-items: # Player with these items in inventory cannot enter the zone
       - TNT
       - ENDER_PEARL
-    blocked-effects: # Player with these effects cannot enter the zone
-      - SPEED
-      - INVISIBILITY
+    blocked-effects: # Player with these effects cannot enter the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED;1 = Speed 1 in the game, if you want to block all powers of effect, you must do ;-1
+      - SPEED;-1
+      - INVISIBILITY;1
     required-items: # Only Player with these items in inventory can enter the zone
       - DIAMOND
       - TOTEM_OF_UNDYING
-    required-effects:  # Only Player with these effects can enter the zone
-      - NIGHT_VISION
-    zone-effects: # Effects that will be applied after entering the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED;1 = Speed 2 in the game
-      - SPEED;1
-      - NIGHT_VISION;0
+    required-effects: # Only Players with these effects can enter the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED;1 = Speed 1 in the game, if you want to block all powers of effect, you must do ;-1
+      - NIGHT_VISION;1
+    zone-effects: # Effects that will be applied after entering the zone, after leaving it they will disappear separator; means the power of the effect, e.g. SPEED; 1 = Speed 1 in the game
+      - STRENGTH;2
     min-health: 5.0 # Players who do not have this number of hearts cannot enter
     max-health: 20.0 # Players who have this number of hearts or more cannot enter
     min-level: 5 # Players who do not have this amount of exp level cannot enter

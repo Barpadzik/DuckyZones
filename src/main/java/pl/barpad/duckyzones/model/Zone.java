@@ -14,9 +14,9 @@ public class Zone {
     private final Location corner1;
     private final Location corner2;
     private final List<Material> blockedItems;
-    private final List<PotionEffectType> blockedEffects;
+    private final Map<PotionEffectType, Integer> blockedEffects;
     private final List<Material> requiredItems;
-    private final List<PotionEffectType> requiredEffects;
+    private final Map<PotionEffectType, Integer> requiredEffects;
     private final boolean elytraDisabled;
     private final double minHealth;
     private final double maxHealth;
@@ -27,8 +27,8 @@ public class Zone {
 
     public Zone(String name,
                 Location corner1, Location corner2,
-                List<Material> blockedItems, List<PotionEffectType> blockedEffects,
-                List<Material> requiredItems, List<PotionEffectType> requiredEffects,
+                List<Material> blockedItems, Map<PotionEffectType, Integer> blockedEffects,
+                List<Material> requiredItems, Map<PotionEffectType, Integer> requiredEffects,
                 double minHealth, double maxHealth,
                 int minLevel, int maxLevel,
                 String denyMessage,
@@ -58,7 +58,6 @@ public class Zone {
         return corner1.getWorld();
     }
 
-
     public boolean isInside(Location loc) {
         double x = loc.getX(), y = loc.getY(), z = loc.getZ();
         return x >= Math.min(corner1.getX(), corner2.getX()) && x <= Math.max(corner1.getX(), corner2.getX())
@@ -69,10 +68,8 @@ public class Zone {
     public int distanceFromBorder(Location loc) {
         Location min = getMin();
         Location max = getMax();
-
         int dx = Math.min(Math.abs(loc.getBlockX() - min.getBlockX()), Math.abs(loc.getBlockX() - max.getBlockX()));
         int dz = Math.min(Math.abs(loc.getBlockZ() - min.getBlockZ()), Math.abs(loc.getBlockZ() - max.getBlockZ()));
-
         return Math.min(dx, dz);
     }
 
@@ -94,7 +91,7 @@ public class Zone {
         return blockedItems;
     }
 
-    public List<PotionEffectType> getBlockedEffects() {
+    public Map<PotionEffectType, Integer> getBlockedEffects() {
         return blockedEffects;
     }
 
@@ -102,7 +99,7 @@ public class Zone {
         return requiredItems;
     }
 
-    public List<PotionEffectType> getRequiredEffects() {
+    public Map<PotionEffectType, Integer> getRequiredEffects() {
         return requiredEffects;
     }
 
