@@ -119,10 +119,18 @@ public class ZoneManager {
                     for (String rewardKey : Objects.requireNonNull(config.getConfigurationSection(path + ".afk-zone.rewards")).getKeys(false)) {
                         String rewardPath = path + ".afk-zone.rewards." + rewardKey;
                         int interval = config.getInt(rewardPath + ".interval", 60);
-                        double chance = config.getDouble(rewardPath + ".chance", 100.0);
+                        double defaultChance = config.getDouble(rewardPath + ".chance", 100.0);
                         List<String> commands = config.getStringList(rewardPath + ".commands");
 
-                        afkRewards.add(new AfkReward(interval, commands, chance));
+                        Map<String, Double> permissionChances = new HashMap<>();
+                        if (config.isConfigurationSection(rewardPath + ".permission-chances")) {
+                            for (String permKey : Objects.requireNonNull(config.getConfigurationSection(rewardPath + ".permission-chances")).getKeys(false)) {
+                                double permChance = config.getDouble(rewardPath + ".permission-chances." + permKey, 100.0);
+                                permissionChances.put(permKey, permChance);
+                            }
+                        }
+
+                        afkRewards.add(new AfkReward(interval, commands, defaultChance, permissionChances));
                     }
                 }
 

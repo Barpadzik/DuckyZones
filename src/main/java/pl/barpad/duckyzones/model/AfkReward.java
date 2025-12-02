@@ -1,17 +1,21 @@
 package pl.barpad.duckyzones.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AfkReward {
 
     private final int intervalSeconds;
     private final List<String> commands;
-    private final double chance;
+    private final double defaultChance;
+    private final Map<String, Double> permissionChances;
 
-    public AfkReward(int intervalSeconds, List<String> commands, double chance) {
+    public AfkReward(int intervalSeconds, List<String> commands, double defaultChance, Map<String, Double> permissionChances) {
         this.intervalSeconds = intervalSeconds;
         this.commands = commands;
-        this.chance = chance;
+        this.defaultChance = defaultChance;
+        this.permissionChances = permissionChances != null ? permissionChances : new HashMap<>();
     }
 
     public int getIntervalSeconds() {
@@ -22,7 +26,20 @@ public class AfkReward {
         return commands;
     }
 
-    public double getChance() {
-        return chance;
+    public double getDefaultChance() {
+        return defaultChance;
+    }
+
+    public Map<String, Double> getPermissionChances() {
+        return permissionChances;
+    }
+
+    public double getChanceForPlayer(org.bukkit.entity.Player player) {
+        for (Map.Entry<String, Double> entry : permissionChances.entrySet()) {
+            if (player.hasPermission(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return defaultChance;
     }
 }

@@ -84,7 +84,8 @@ public class AfkRewardManager {
                         long elapsedSeconds = (currentTime - lastTime) / 1000;
 
                         if (elapsedSeconds >= reward.getIntervalSeconds()) {
-                            if (Math.random() * 100 <= reward.getChance()) {
+                            double playerChance = reward.getChanceForPlayer(player);
+                            if (Math.random() * 100 <= playerChance) {
                                 for (String command : reward.getCommands()) {
                                     String processedCommand = command.replace("%player%", player.getName());
                                     Bukkit.getScheduler().runTask(plugin, () ->
