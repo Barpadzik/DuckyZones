@@ -7,6 +7,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.potion.PotionEffectType;
 import pl.barpad.duckyzones.Main;
+import pl.barpad.duckyzones.model.AfkReward;
 import pl.barpad.duckyzones.model.Zone;
 
 import java.util.*;
@@ -111,6 +112,20 @@ public class ZoneManager {
                 int maxLevel = config.getInt(path + ".max-level", 100);
                 String message = config.getString(path + ".deny-message", "&cYou cannot enter this zone!");
 
+                boolean isAfkZone = config.getBoolean(path + ".afk-zone.enabled", false);
+                List<AfkReward> afkRewards = new ArrayList<>();
+
+                if (isAfkZone && config.isConfigurationSection(path + ".afk-zone.rewards")) {
+                    for (String rewardKey : Objects.requireNonNull(config.getConfigurationSection(path + ".afk-zone.rewards")).getKeys(false)) {
+                        String rewardPath = path + ".afk-zone.rewards." + rewardKey;
+                        int interval = config.getInt(rewardPath + ".interval", 60);
+                        double chance = config.getDouble(rewardPath + ".chance", 100.0);
+                        List<String> commands = config.getStringList(rewardPath + ".commands");
+
+                        afkRewards.add(new AfkReward(interval, commands, chance));
+                    }
+                }
+
                 Zone zone = new Zone(
                         zoneName,
                         corner1, corner2,
@@ -120,7 +135,9 @@ public class ZoneManager {
                         minLevel, maxLevel,
                         message,
                         zoneEffects,
-                        elytraDisabled
+                        elytraDisabled,
+                        isAfkZone,
+                        afkRewards
                 );
                 zones.add(zone);
 

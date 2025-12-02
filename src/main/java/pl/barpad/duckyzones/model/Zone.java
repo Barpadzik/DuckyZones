@@ -24,6 +24,8 @@ public class Zone {
     private final int maxLevel;
     private final String denyMessage;
     private final Map<PotionEffectType, Integer> zoneEffects;
+    private final boolean isAfkZone;
+    private final List<AfkReward> afkRewards;
 
     public Zone(String name,
                 Location corner1, Location corner2,
@@ -33,7 +35,9 @@ public class Zone {
                 int minLevel, int maxLevel,
                 String denyMessage,
                 Map<PotionEffectType, Integer> zoneEffects,
-                boolean elytraDisabled) {
+                boolean elytraDisabled,
+                boolean isAfkZone,
+                List<AfkReward> afkRewards) {
         this.name = name;
         this.corner1 = corner1;
         this.corner2 = corner2;
@@ -48,6 +52,8 @@ public class Zone {
         this.denyMessage = denyMessage;
         this.zoneEffects = zoneEffects;
         this.elytraDisabled = elytraDisabled;
+        this.isAfkZone = isAfkZone;
+        this.afkRewards = afkRewards;
     }
 
     public String getName() {
@@ -129,5 +135,13 @@ public class Zone {
 
     public Map<PotionEffectType, Integer> getZoneEffects() {
         return zoneEffects;
+    }
+
+    public boolean isAfkZone() {
+        return isAfkZone;
+    }
+
+    public List<AfkReward> getAfkRewards() {
+        return afkRewards;
     }
 }

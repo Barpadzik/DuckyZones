@@ -21,7 +21,7 @@ public class Reload extends AbstractCommand implements TabExecutor {
     private final ZoneListener zoneListener;
 
     public Reload(Main plugin, ConfigManager configManager, MessagesManager messagesManager, ZoneManager zoneManager, ZoneListener zoneListener) {
-        super("duckyzones", "duckyzones.reload", "Reload command");
+        super("duckyzones", "/duckyzones reload", "Reload command");
         this.plugin = plugin;
         this.configManager = configManager;
         this.messagesManager = messagesManager;

@@ -18,6 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import pl.barpad.duckyzones.Main;
 import pl.barpad.duckyzones.cache.ZoneWorldCache;
+import pl.barpad.duckyzones.managers.AfkRewardManager;
 import pl.barpad.duckyzones.managers.MessagesManager;
 import pl.barpad.duckyzones.managers.ZoneManager;
 import pl.barpad.duckyzones.model.Zone;
@@ -29,15 +30,17 @@ public class ZoneListener implements Listener {
     private final Main plugin;
     private final ZoneManager zoneManager;
     private final MessagesManager messagesManager;
+    private final AfkRewardManager afkRewardManager;
     private List<Zone> cachedZones;
     private final Map<Player, String> elytraMessageCache = new HashMap<>();
     private final Map<Player, Zone> playerZones = new HashMap<>();
     private final ZoneWorldCache zoneWorldCache;
 
-    public ZoneListener(Main plugin, ZoneManager zoneManager, MessagesManager messagesManager) {
+    public ZoneListener(Main plugin, ZoneManager zoneManager, MessagesManager messagesManager, AfkRewardManager afkRewardManager) {
         this.plugin = plugin;
         this.zoneManager = zoneManager;
         this.messagesManager = messagesManager;
+        this.afkRewardManager = afkRewardManager;
         this.zoneWorldCache = new ZoneWorldCache(zoneManager);
         refreshZones();
     }
@@ -68,16 +71,19 @@ public class ZoneListener implements Listener {
                         player.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
                     }
                 }
+                afkRewardManager.trackPlayerInZone(player, currentZone);
             }
 
             if (currentZone != null) {
                 playerZones.put(player, currentZone);
             } else {
-                playerZones.remove(player);
-
-                for (PotionEffectType type : previousZone.getZoneEffects().keySet()) {
-                    player.removePotionEffect(type);
+                if (previousZone != null) {
+                    for (PotionEffectType type : previousZone.getZoneEffects().keySet()) {
+                        player.removePotionEffect(type);
+                    }
+                    afkRewardManager.removePlayerFromZone(player, previousZone);
                 }
+                playerZones.remove(player);
             }
         }
 
