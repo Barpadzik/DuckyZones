@@ -10,12 +10,17 @@ public class AfkReward {
     private final List<String> commands;
     private final double defaultChance;
     private final Map<String, Double> permissionChances;
+    private final String bossbarFormat;
+    private final String actionbarFormat;
 
-    public AfkReward(int intervalSeconds, List<String> commands, double defaultChance, Map<String, Double> permissionChances) {
+    public AfkReward(int intervalSeconds, List<String> commands, double defaultChance,
+                     Map<String, Double> permissionChances, String bossbarFormat, String actionbarFormat) {
         this.intervalSeconds = intervalSeconds;
         this.commands = commands;
         this.defaultChance = defaultChance;
         this.permissionChances = permissionChances != null ? permissionChances : new HashMap<>();
+        this.bossbarFormat = bossbarFormat != null ? bossbarFormat : "&cReward in {time}";
+        this.actionbarFormat = actionbarFormat != null ? actionbarFormat : "&eReward in {time}";
     }
 
     public int getIntervalSeconds() {
@@ -32,6 +37,14 @@ public class AfkReward {
 
     public Map<String, Double> getPermissionChances() {
         return permissionChances;
+    }
+
+    public String getBossbarFormat() {
+        return bossbarFormat;
+    }
+
+    public String getActionbarFormat() {
+        return actionbarFormat;
     }
 
     public double getChanceForPlayer(org.bukkit.entity.Player player) {

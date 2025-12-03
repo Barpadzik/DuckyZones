@@ -1,6 +1,10 @@
 package pl.barpad.duckyzones.managers;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import pl.barpad.duckyzones.Main;
@@ -14,6 +18,7 @@ public class AfkRewardManager {
     private final Main plugin;
     private final Map<UUID, Map<Zone, Long>> playerZoneEntryTime = new HashMap<>();
     private final Map<UUID, Map<Zone, Map<AfkReward, Long>>> lastRewardTime = new HashMap<>();
+    private final Map<UUID, Map<AfkReward, BossBar>> playerBossbars = new HashMap<>();
     private BukkitTask rewardTask;
 
     public AfkRewardManager(Main plugin) {
@@ -31,6 +36,13 @@ public class AfkRewardManager {
             playerZoneEntryTime.get(playerId).put(zone, System.currentTimeMillis());
             lastRewardTime.putIfAbsent(playerId, new HashMap<>());
             lastRewardTime.get(playerId).put(zone, new HashMap<>());
+            playerBossbars.putIfAbsent(playerId, new HashMap<>());
+
+            for (AfkReward reward : zone.getAfkRewards()) {
+                BossBar bossBar = Bukkit.createBossBar("", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                bossBar.addPlayer(player);
+                playerBossbars.get(playerId).put(reward, bossBar);
+            }
         }
     }
 
@@ -50,11 +62,32 @@ public class AfkRewardManager {
                 lastRewardTime.remove(playerId);
             }
         }
+
+        if (playerBossbars.containsKey(playerId)) {
+            for (AfkReward reward : zone.getAfkRewards()) {
+                BossBar bossBar = playerBossbars.get(playerId).remove(reward);
+                if (bossBar != null) {
+                    bossBar.removePlayer(player);
+                    bossBar.setVisible(false);
+                }
+            }
+            if (playerBossbars.get(playerId).isEmpty()) {
+                playerBossbars.remove(playerId);
+            }
+        }
     }
 
     public void clearPlayer(UUID playerId) {
         playerZoneEntryTime.remove(playerId);
         lastRewardTime.remove(playerId);
+
+        if (playerBossbars.containsKey(playerId)) {
+            for (BossBar bossBar : playerBossbars.get(playerId).values()) {
+                bossBar.removeAll();
+                bossBar.setVisible(false);
+            }
+            playerBossbars.remove(playerId);
+        }
     }
 
     private void startRewardTask() {
@@ -82,6 +115,19 @@ public class AfkRewardManager {
                         Map<AfkReward, Long> rewardTimes = lastRewardTime.get(playerId).get(zone);
                         long lastTime = rewardTimes.getOrDefault(reward, zoneEntry.getValue());
                         long elapsedSeconds = (currentTime - lastTime) / 1000;
+                        long remainingSeconds = reward.getIntervalSeconds() - elapsedSeconds;
+
+                        BossBar bossBar = playerBossbars.get(playerId).get(reward);
+                        if (bossBar != null) {
+                            String timeFormat = formatTime(Math.max(0, remainingSeconds));
+                            String bossbarText = color(reward.getBossbarFormat().replace("{time}", timeFormat));
+                            bossBar.setTitle(bossbarText);
+                            bossBar.setProgress(Math.max(0, (double) remainingSeconds / reward.getIntervalSeconds()));
+                        }
+
+                        TextComponent actionbarComponent = new TextComponent(color(reward.getActionbarFormat()
+                                .replace("{time}", formatTime(Math.max(0, remainingSeconds)))));
+                        player.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, actionbarComponent);
 
                         if (elapsedSeconds >= reward.getIntervalSeconds()) {
                             double playerChance = reward.getChanceForPlayer(player);
@@ -107,5 +153,16 @@ public class AfkRewardManager {
         }
         playerZoneEntryTime.clear();
         lastRewardTime.clear();
+        playerBossbars.clear();
+    }
+
+    private String formatTime(long seconds) {
+        long minutes = seconds / 60;
+        long secs = seconds % 60;
+        return String.format("%02d:%02d", minutes, secs);
+    }
+
+    private String color(String message) {
+        return message == null ? "" : message.replace("&", "§");
     }
 }

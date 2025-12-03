@@ -40,6 +40,8 @@ zones:
           permission-chances: # Override chance based on player permissions
             "duckyzones.afk.vip": 150.0 # VIP players get 150% reward chance
             "duckyzones.afk.premium": 200.0 # Premium players get 200% reward chance
+          bossbar-format: "&eReward 1 in {time}" # Bossbar text, {time} will be replaced with mm:ss format
+          actionbar-format: "&fReward 1 coming in {time}..." # Actionbar text, {time} will be replaced with mm:ss format
           commands: # Commands to execute when reward is given
             - "give %player% diamond 1"
             - "tellraw %player% {\"text\":\"You received a reward for being AFK!\",\"color\":\"green\"}"
@@ -48,5 +50,7 @@ zones:
           chance: 50.0 # 50% default chance
           permission-chances:
             "duckyzones.afk.premium": 100.0 # Premium players always get this reward
+          bossbar-format: "&cBig Reward in {time}"
+          actionbar-format: "&dBig Reward coming in {time}!"
           commands:
             - "give %player% emerald 1"
