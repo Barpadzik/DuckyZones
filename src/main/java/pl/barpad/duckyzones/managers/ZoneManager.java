@@ -122,7 +122,6 @@ public class ZoneManager {
                         double defaultChance = config.getDouble(rewardPath + ".chance", 100.0);
                         List<String> commands = config.getStringList(rewardPath + ".commands");
                         String bossbarFormat = config.getString(rewardPath + ".bossbar-format", "&cReward in {time}");
-                        String actionbarFormat = config.getString(rewardPath + ".actionbar-format", "&eReward in {time}");
 
                         Map<String, Double> permissionChances = new HashMap<>();
                         if (config.isConfigurationSection(rewardPath + ".permission-chances")) {
@@ -132,9 +131,11 @@ public class ZoneManager {
                             }
                         }
 
-                        afkRewards.add(new AfkReward(interval, commands, defaultChance, permissionChances, bossbarFormat, actionbarFormat));
+                        afkRewards.add(new AfkReward(interval, commands, defaultChance, permissionChances, bossbarFormat, rewardKey));
                     }
                 }
+
+                String afkActionbarFormat = config.getString(path + ".afk-zone.actionbar-format", "&eRewards: {rewards}");
 
                 Zone zone = new Zone(
                         zoneName,
@@ -147,7 +148,8 @@ public class ZoneManager {
                         zoneEffects,
                         elytraDisabled,
                         isAfkZone,
-                        afkRewards
+                        afkRewards,
+                        afkActionbarFormat
                 );
                 zones.add(zone);
 

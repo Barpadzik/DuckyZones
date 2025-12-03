@@ -26,6 +26,7 @@ public class Zone {
     private final Map<PotionEffectType, Integer> zoneEffects;
     private final boolean isAfkZone;
     private final List<AfkReward> afkRewards;
+    private final String afkActionbarFormat;
 
     public Zone(String name,
                 Location corner1, Location corner2,
@@ -37,7 +38,8 @@ public class Zone {
                 Map<PotionEffectType, Integer> zoneEffects,
                 boolean elytraDisabled,
                 boolean isAfkZone,
-                List<AfkReward> afkRewards) {
+                List<AfkReward> afkRewards,
+                String afkActionbarFormat) {
         this.name = name;
         this.corner1 = corner1;
         this.corner2 = corner2;
@@ -54,6 +56,7 @@ public class Zone {
         this.elytraDisabled = elytraDisabled;
         this.isAfkZone = isAfkZone;
         this.afkRewards = afkRewards;
+        this.afkActionbarFormat = afkActionbarFormat;
     }
 
     public String getName() {
@@ -143,5 +146,9 @@ public class Zone {
 
     public List<AfkReward> getAfkRewards() {
         return afkRewards;
+    }
+
+    public String getAfkActionbarFormat() {
+        return afkActionbarFormat;
     }
 }

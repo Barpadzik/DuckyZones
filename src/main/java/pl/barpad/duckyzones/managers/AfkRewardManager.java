@@ -111,8 +111,10 @@ public class AfkRewardManager {
                         continue;
                     }
 
+                    StringBuilder rewardsInfo = new StringBuilder();
+                    Map<AfkReward, Long> rewardTimes = lastRewardTime.get(playerId).get(zone);
+
                     for (AfkReward reward : zone.getAfkRewards()) {
-                        Map<AfkReward, Long> rewardTimes = lastRewardTime.get(playerId).get(zone);
                         long lastTime = rewardTimes.getOrDefault(reward, zoneEntry.getValue());
                         long elapsedSeconds = (currentTime - lastTime) / 1000;
                         long remainingSeconds = reward.getIntervalSeconds() - elapsedSeconds;
@@ -125,9 +127,10 @@ public class AfkRewardManager {
                             bossBar.setProgress(Math.max(0, (double) remainingSeconds / reward.getIntervalSeconds()));
                         }
 
-                        TextComponent actionbarComponent = new TextComponent(color(reward.getActionbarFormat()
-                                .replace("{time}", formatTime(Math.max(0, remainingSeconds)))));
-                        player.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, actionbarComponent);
+                        if (rewardsInfo.length() > 0) {
+                            rewardsInfo.append(" &7| ");
+                        }
+                        rewardsInfo.append("&e").append(reward.getName()).append(" &f").append(formatTime(Math.max(0, remainingSeconds)));
 
                         if (elapsedSeconds >= reward.getIntervalSeconds()) {
                             double playerChance = reward.getChanceForPlayer(player);
@@ -142,6 +145,10 @@ public class AfkRewardManager {
                             rewardTimes.put(reward, currentTime);
                         }
                     }
+
+                    String actionbarText = zone.getAfkActionbarFormat().replace("{rewards}", rewardsInfo.toString());
+                    TextComponent actionbarComponent = new TextComponent(color(actionbarText));
+                    player.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, actionbarComponent);
                 }
             }
         }, 20L, 20L);
